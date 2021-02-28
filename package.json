@@ -1,0 +1,35 @@
+{
+  "name": "crunchyroll-intro-skipper",
+  "version": "0.1.0",
+  "description": "Allows intros to be skipped through a skip button on Crunchyroll",
+  "author": {
+    "name" : "Ramon Quitales",
+    "url" : "https://rquitales.com"
+  },
+  "homepage": "https://github.com/rquitales/crunchyroll-intro-skipper",
+  "license": "Apache-2.0",
+  "licenses": [
+    {
+      "type": "Apache-2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0"
+    }
+  ],
+  "scripts": {
+    "clean": "npm run clean:delete && mkdir -p ./dist/",
+    "clean:delete": "rm -rf ./dist",
+    "copy:static": "cp manifest.json ./dist/manifest.json && cp LICENSE ./dist/LICENSE && cp -R ./src/* ./dist/",
+    "copy": "npm-run-all copy:*",
+    "build:typescript": "webpack --config webpack.config.js",
+    "build": "npm-run-all clean build:* copy"
+  },
+  "dependencies": {
+    "@types/chrome": "0.0.128"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5",
+    "ts-loader": "^8.0.14",
+    "typescript": "^4.1.3",
+    "webpack": "^5.17.0",
+    "webpack-cli": "^4.4.0"
+  }
+}

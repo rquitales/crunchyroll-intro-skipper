@@ -1,0 +1,24 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "baseUrl": "./",
+    "declaration": false,
+    "downlevelIteration": true,
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
+    "importHelpers": true,
+    "lib": ["es2018", "dom", "es2015"],
+    "module": "es2020",
+    "moduleResolution": "node",
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "outDir": "../js",
+    "sourceMap": false,
+    "strict": true,
+    "strictNullChecks": true,
+    "target": "es2018",
+    "typeRoots": ["node_modules/@types"],
+    "types": ["@types/chrome"],
+  },
+  "include": ["src/"]
+}
