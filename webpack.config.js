@@ -8,7 +8,7 @@ module.exports = {
     content_script: join(__dirname, 'src/content_script.ts'),
   },
   output: {
-    path: join(__dirname, 'dist'),
+    path: join(__dirname, 'dist/js'),
     filename: '[name].js',
   },
   module: {

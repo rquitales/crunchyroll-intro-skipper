@@ -15,9 +15,9 @@
     }
   ],
   "scripts": {
-    "clean": "npm run clean:delete && mkdir -p ./dist/",
+    "clean": "npm run clean:delete && mkdir -p ./dist/assets",
     "clean:delete": "rm -rf ./dist",
-    "copy:static": "cp manifest.json ./dist/manifest.json && cp LICENSE ./dist/LICENSE && cp -R ./src/* ./dist/",
+    "copy:static": "cp manifest.json ./dist/manifest.json && cp LICENSE ./dist/LICENSE && cp -R ./src/assets ./dist",
     "copy": "npm-run-all copy:*",
     "build:typescript": "webpack --config webpack.config.js",
     "build": "npm-run-all clean build:* copy"

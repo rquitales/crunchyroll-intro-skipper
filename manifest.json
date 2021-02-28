@@ -3,7 +3,7 @@
     {
       "all_frames": true,
       "js": [
-        "content_script.js"
+        "js/content_script.js"
       ],
       "matches": [
         "https://static.crunchyroll.com/vilos-v2/web/vilos/player.html*"
@@ -12,12 +12,12 @@
   ],
   "description": "Allows intros to be skipped through a skip button on Crunchyroll",
   "icons": {
-    "16": "icon.png",
-    "128": "large_icon.png"
+    "16": "assets/images/icon.png",
+    "128": "assets/images/large_icon.png"
   },
   "background": {
     "scripts": [
-      "background_script.js"
+      "js/background_script.js"
     ],
     "persistent": false
   },

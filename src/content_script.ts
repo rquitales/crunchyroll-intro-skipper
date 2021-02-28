@@ -1,20 +1,23 @@
 function init() {
   chrome.runtime.sendMessage('trigger', (response) => {
     console.log('Skip intro button:', response);
-    introTS = response.interval;
-    addSkipButton(introTS);
+    addSkipButton(response.interval);
   });
 }
 
-function addSkipButton(introTS) {
+function addSkipButton(introTS: number) {
   let root = document.getElementById('vilosRoot');
+  if (!root) {
+    return
+  }
+
   let button = document.createElement('div');
   let player = document.getElementById('player0');
 
-  button.style.zIndex = 999;
+  button.style.zIndex = "999";
   button.style.color = 'white';
   button.style.position = 'fixed';
-  button.style.right = 0;
+  button.style.right = "0";
   button.style.bottom = '80px';
 
   button.style.backgroundColor = 'rgba(0,0,0,0.3)';
@@ -27,20 +30,23 @@ function addSkipButton(introTS) {
   button.id = 'skipButton';
 
   button.onclick = () => {
-    player.currentTime = introTS;
+    (<any>player).currentTime = introTS;
   };
   root.append(button);
   window.setInterval(showHideSkipButton(introTS), 1000);
 }
 
-function showHideSkipButton(introTS) {
+function showHideSkipButton(introTS: number) {
   let intro = introTS;
 
   return function () {
     let skipButton = document.getElementById('skipButton');
     let player = document.getElementById('player0');
-    let time = parseInt(player.currentTime);
-    console.log('innerInner', intro);
+    if (!skipButton || !player) {
+      return
+    }
+
+    let time = parseInt((<any>player).currentTime);
     if (time < intro) {
       skipButton.innerText = 'SKIP INTRO';
       skipButton.style.display = 'block';

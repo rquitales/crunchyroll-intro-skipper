@@ -1,6 +1,9 @@
-chrome.runtime.onMessage.addListener(function (_, _, sendResponse) {
+chrome.runtime.onMessage.addListener(function ({ }, { }, sendResponse: (response: any) => void): boolean {
   chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-    sourceURL = tabs[0].url;
+    let sourceURL = tabs[0].url;
+    if (!sourceURL) {
+      return
+    }
 
     fetch(sourceURL)
       .then((response) => response.text())
@@ -8,13 +11,13 @@ chrome.runtime.onMessage.addListener(function (_, _, sendResponse) {
         return data.substr(data.search('talkboxid') + 13, 30);
       })
       .then((talkboxID) => {
-        return checkComments(talkboxID, sourceURL, sendResponse);
+        return checkComments(talkboxID, sourceURL!, sendResponse);
       })
       .then((prev) => {
         if (prev) {
           return;
         }
-        useAdBreaks(sourceURL, sendResponse);
+        useAdBreaks(sourceURL!, sendResponse);
       })
       .catch((error) => alert({ error: error }));
   });
@@ -22,23 +25,19 @@ chrome.runtime.onMessage.addListener(function (_, _, sendResponse) {
   return true;
 });
 
-function useAdBreaks(sourceURL, sendResponse) {
+function useAdBreaks(sourceURL: string, sendResponse: (response: any) => void): void {
   fetch(sourceURL)
     .then((response) => response.text())
     .then((data) => {
-      console.log(data.search('ad_breaks'));
-      let resp =
-        parseInt(data.substr(data.search('ad_breaks') + 69, 10)) / 1000;
+      let resp = parseInt(data.substr(data.search('ad_breaks') + 69, 10)) / 1000;
       sendResponse({ interval: resp, source: 'ad_breaks' });
     });
 }
 
-async function checkComments(talkboxID, referralID, sendResponse) {
-  let useComments;
-
+async function checkComments(talkboxID: string, referralID: string, sendResponse: (response: any) => void): Promise<boolean> {
   let url = `https://www.crunchyroll.com/comments?pg=0&talkboxid=${talkboxID}&sort=score_desc%2Cdate_desc&replycount=10&threadlimit=5&pagelimit=10`;
 
-  useComments = await fetch(url, {
+  let useComments = await fetch(url, {
     headers: {
       accept: '*/*',
       'accept-language': 'en-US,en;q=0.9',
@@ -62,7 +61,7 @@ async function checkComments(talkboxID, referralID, sendResponse) {
   return useComments;
 }
 
-function parseComments(data, sendResponse) {
+function parseComments(data: any, sendResponse: (response: any) => void): boolean {
   var timestampRegex = /^[0-9]+\:[0-9]{1,2}$/;
   var tcRegex = /time|title|tc|card|intro|recap|end/i;
 
@@ -72,7 +71,7 @@ function parseComments(data, sendResponse) {
   }
 
   while (stack.length > 0) {
-    curr = stack.shift();
+    let curr = stack.shift();
 
     if (!curr) {
       continue;
@@ -84,11 +83,9 @@ function parseComments(data, sendResponse) {
       }
     }
     if (curr.comment.body === undefined) {
-      console.log(curr);
       continue;
     }
-    words = curr.comment.body.split(' ');
-
+    let words = curr.comment.body.split(' ');
     let ok = false;
 
     for (const word of words) {
