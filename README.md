@@ -1,8 +1,21 @@
-# Crunchyroll Intro Skipper
+<p align="center">
+  <a src="https://github.com/rquitales/crunchyroll-intro-skipper">
+    <img src="https://github.com/rquitales/crunchyroll-intro-skipper/raw/main/src/assets/images/large_icon.png" width="75" height="75"/>
+  </a>
+</p>
+
+<h1 align="center">Crunchyroll Intro Skipper</h1>
 
 ![build](https://github.com/rquitales/crunchyroll-intro-skipper/actions/workflows/ci.yml/badge.svg)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/rquitales/crunchyroll-intro-skipper)
+![GitHub issues](https://img.shields.io/github/issues-raw/rquitales/crunchyroll-intro-skipper)
+![GitHub](https://img.shields.io/github/license/rquitales/crunchyroll-intro-skipper)
+![dependencies](https://status.david-dm.org/gh/rquitales/crunchyroll-intro-skipper.svg)
+![devDependencies](https://status.david-dm.org/gh/rquitales/crunchyroll-intro-skipper.svg?type=dev)
 
-[![crunchyroll-intro-skipper](https://github.com/rquitales/crunchyroll-intro-skipper/raw/main/src/assets/images/large_icon.png)](https://github.com/rquitales/crunchyroll-intro-skipper)
+#### Browser Extensions
+
+<a href="https://addons.mozilla.org/en-US/firefox/addon/crunchyroll-intro-skipper/" target="_blank"><img src="https://imgur.com/ihXsdDO.png" width="64" height="64"></a>
 
 ---
 
