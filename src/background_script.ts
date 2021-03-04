@@ -2,32 +2,31 @@ const TimeStampRegex = /^[0-9]+\:[0-9]{1,2}$/;
 const CommentKeywordRegex = /time|title|tc|card|intro|recap|end/i;
 
 chrome.runtime.onMessage.addListener(function (
-  {},
-  {},
+  _,
+  sender,
   sendResponse: (response: any) => void
 ): boolean {
-  chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-    let sourceURL = tabs[0].url;
-    if (!sourceURL) {
-      return;
-    }
+  if (!sender || !sender.tab || !sender.tab.url) {
+    return false;
+  }
 
-    fetch(sourceURL)
-      .then((response) => response.text())
-      .then((data) => {
-        return data.substr(data.search('talkboxid') + 13, 30);
-      })
-      .then((talkboxID) => {
-        return checkComments(talkboxID, sourceURL!, sendResponse);
-      })
-      .then((prev) => {
-        if (prev) {
-          return;
-        }
-        useAdBreaks(sourceURL!, sendResponse);
-      })
-      .catch((error) => alert({ error: error }));
-  });
+  let sourceURL = sender.tab.url;
+
+  fetch(sourceURL)
+    .then((response) => response.text())
+    .then((data) => {
+      return data.substr(data.search('talkboxid') + 13, 30);
+    })
+    .then((talkboxID) => {
+      return checkComments(talkboxID, sourceURL!, sendResponse);
+    })
+    .then((prev) => {
+      if (prev) {
+        return;
+      }
+      useAdBreaks(sourceURL!, sendResponse);
+    })
+    .catch((error) => alert({ error: error }));
 
   return true;
 });
@@ -41,7 +40,11 @@ function useAdBreaks(
     .then((data) => {
       let resp =
         parseInt(data.substr(data.search('ad_breaks') + 69, 10)) / 1000;
-      sendResponse({ interval: resp, source: 'ad_breaks', text: `Ad-break: ${Math.floor(resp/60)}:${Math.floor(resp%60)}` });
+      sendResponse({
+        interval: resp,
+        source: 'ad_breaks',
+        text: `Ad-break: ${Math.floor(resp / 60)}:${Math.floor(resp % 60)}`,
+      });
     });
 }
 
@@ -106,7 +109,11 @@ function parseComments(
     if (words.length === 1) {
       let ts = checkWordForTS(words[0]);
       if (ts) {
-        sendResponse({ interval: ts, source: 'comments', text: curr.comment.body });
+        sendResponse({
+          interval: ts,
+          source: 'comments',
+          text: curr.comment.body,
+        });
         return true;
       }
     }
@@ -125,7 +132,11 @@ function parseComments(
       for (const word of words) {
         let ts = checkWordForTS(word);
         if (ts) {
-          sendResponse({ interval: ts, source: 'comments', text: curr.comment.body });
+          sendResponse({
+            interval: ts,
+            source: 'comments',
+            text: curr.comment.body,
+          });
           return true;
         }
       }

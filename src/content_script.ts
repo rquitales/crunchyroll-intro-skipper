@@ -5,15 +5,7 @@ function init() {
   });
 }
 
-function addSkipButton(resp: any) {
-  let root = document.getElementById('vilosRoot');
-  if (!root) {
-    return;
-  }
-
-  let button = document.createElement('div');
-  let player = document.getElementById('player0');
-
+function styleButton(button: HTMLDivElement) {
   button.style.zIndex = '999';
   button.style.color = 'white';
   button.style.position = 'fixed';
@@ -28,11 +20,24 @@ function addSkipButton(resp: any) {
   button.style.cursor = 'pointer';
   button.style.display = 'none';
   button.id = 'skipButton';
+}
+
+function addSkipButton(resp: any) {
+  let root = document.getElementById('vilosRoot');
+  if (!root) {
+    return;
+  }
+
+  let player: any = document.getElementById('player0');
+
+  let button = document.createElement('div');
+  styleButton(button);
   button.innerHTML = `SKIP INTRO<br/>${resp.text}`;
 
   button.onclick = () => {
-    (<any>player).currentTime = resp.interval;
+    player.currentTime = resp.interval;
   };
+  
   root.append(button);
   window.setInterval(showHideSkipButton(resp.interval), 1000);
 }
@@ -48,7 +53,7 @@ function showHideSkipButton(ts: number) {
     }
 
     let time = parseInt((<any>player).currentTime);
-    if (time < intro ) {
+    if (time < intro) {
       skipButton.style.display = 'block';
     } else {
       skipButton.style.display = 'none';
