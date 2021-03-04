@@ -15,6 +15,7 @@
 
 #### Browser Extensions
 
+<a href="https://chrome.google.com/webstore/detail/crunchyroll-intro-skipper/enphflaephhmabkpchhgkhkfcblbhiip" target="_blank"><img src="https://imgur.com/3C4iKO0.png" width="64" height="64"></a>
 <a href="https://addons.mozilla.org/en-US/firefox/addon/crunchyroll-intro-skipper/" target="_blank"><img src="https://imgur.com/ihXsdDO.png" width="64" height="64"></a>
 
 ---
