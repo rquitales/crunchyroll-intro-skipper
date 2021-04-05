@@ -1,59 +1,47 @@
-const TimeStampRegex = /^[0-9]+\:[0-9]{1,2}$/;
-const CommentKeywordRegex = /time|title|tc|card|intro|recap|end/i;
+const TimeStampRegex = /[0-9]{1,2}\:[0-9]{1,2}/
+const CommentKeywordRegex = /time|title|tc|card|intro|recap|end|start/i
 
-chrome.runtime.onMessage.addListener(function (
-  _,
-  sender,
-  sendResponse: (response: any) => void
-): boolean {
+chrome.runtime.onMessage.addListener(function (_, sender, sendResponse: (response: any) => void): boolean {
   if (!sender || !sender.tab || !sender.tab.url) {
-    return false;
+    return false
   }
 
-  let sourceURL = sender.tab.url;
+  let sourceURL = sender.tab.url
 
   fetch(sourceURL)
-    .then((response) => response.text())
-    .then((data) => {
-      return data.substr(data.search('talkboxid') + 13, 30);
+    .then(response => response.text())
+    .then(data => {
+      return data.substr(data.search('talkboxid') + 13, 30)
     })
-    .then((talkboxID) => {
-      return checkComments(talkboxID, sourceURL!, sendResponse);
+    .then(talkboxID => {
+      return checkComments(talkboxID, sourceURL!, sendResponse)
     })
-    .then((prev) => {
+    .then(prev => {
       if (prev) {
-        return;
+        return
       }
-      useAdBreaks(sourceURL!, sendResponse);
+      useAdBreaks(sourceURL!, sendResponse)
     })
-    .catch((error) => alert({ error: error }));
+    .catch(error => alert({ error: error }))
 
-  return true;
-});
+  return true
+})
 
-function useAdBreaks(
-  sourceURL: string,
-  sendResponse: (response: any) => void
-): void {
+function useAdBreaks(sourceURL: string, sendResponse: (response: any) => void): void {
   fetch(sourceURL)
-    .then((response) => response.text())
-    .then((data) => {
-      let resp =
-        parseInt(data.substr(data.search('ad_breaks') + 69, 10)) / 1000;
+    .then(response => response.text())
+    .then(data => {
+      let resp = parseInt(data.substr(data.search('ad_breaks') + 69, 10)) / 1000
       sendResponse({
         interval: resp,
         source: 'ad_breaks',
         text: `Ad-break: ${Math.floor(resp / 60)}:${Math.floor(resp % 60)}`,
-      });
-    });
+      })
+    })
 }
 
-async function checkComments(
-  talkboxID: string,
-  referralID: string,
-  sendResponse: (response: any) => void
-): Promise<boolean> {
-  let url = `https://www.crunchyroll.com/comments?pg=0&talkboxid=${talkboxID}&sort=score_desc%2Cdate_desc&replycount=10&threadlimit=5&pagelimit=10`;
+async function checkComments(talkboxID: string, referralID: string, sendResponse: (response: any) => void): Promise<boolean> {
+  let url = `https://www.crunchyroll.com/comments?pg=0&talkboxid=${talkboxID}&sort=score_desc%2Cdate_desc&replycount=10&threadlimit=5&pagelimit=10`
 
   let useComments = await fetch(url, {
     headers: {
@@ -71,85 +59,72 @@ async function checkComments(
     mode: 'cors',
     credentials: 'include',
   })
-    .then((response) => response.json())
-    .then((data) => {
-      return parseComments(data, sendResponse);
-    });
+    .then(response => response.json())
+    .then(data => {
+      return parseComments(data, sendResponse)
+    })
 
-  return useComments;
+  return useComments
 }
 
-function parseComments(
-  data: any,
-  sendResponse: (response: any) => void
-): boolean {
-  let stack = [];
+function parseComments(data: any, sendResponse: (response: any) => void): boolean {
+  let stack = []
+
+  // Add top level (parent) comments to stack.
   for (let div of data) {
-    stack.push(div);
+    stack.push(div)
   }
 
+  // Traverse comments with BFS.
   while (stack.length > 0) {
-    let curr = stack.shift();
+    let curr = stack.shift()
 
     if (!curr) {
-      continue;
+      continue
     }
 
     if (curr.children && curr.children.length != 0) {
-      for (const child of curr.children) {
-        stack.push(child);
-      }
-    }
-    if (curr.comment.body === undefined) {
-      continue;
-    }
-    let words = curr.comment.body.split(' ');
-
-    // Check if the only comment is a timestamp, and assume that works...
-    if (words.length === 1) {
-      let ts = checkWordForTS(words[0]);
-      if (ts) {
-        sendResponse({
-          interval: ts,
-          source: 'comments',
-          text: curr.comment.body,
-        });
-        return true;
-      }
+      curr.children.forEach((child: any) => {
+        stack.push(child)
+      })
     }
 
-    // Check if keyword present in comment...
-    let ok = false;
+    const comment: string | undefined = curr.comment.body
 
-    for (const word of words) {
-      if (CommentKeywordRegex.test(word)) {
-        ok = true;
-        break;
-      }
+    if (comment === undefined) {
+      continue
     }
 
-    if (ok) {
-      for (const word of words) {
-        let ts = checkWordForTS(word);
-        if (ts) {
-          sendResponse({
-            interval: ts,
-            source: 'comments',
-            text: curr.comment.body,
-          });
-          return true;
-        }
+    // If comment has keywords indicating a timestamp, or only has one word, check/send timestamp.
+    if (CommentKeywordRegex.test(comment) || comment.split(' ').length === 1) {
+      if (sendTimeStamp(comment, sendResponse)) {
+        return true
       }
     }
   }
-  return false;
+
+  return false
 }
 
-function checkWordForTS(word: string): number | undefined {
-  if (TimeStampRegex.test(word)) {
-    let minutes = parseInt(word.split(':')[0]) * 60;
-    let seconds = parseInt(word.split(':')[1]);
-    return minutes + seconds;
+function tsToSeconds(word: string): number {
+  let minutes = parseInt(word.split(':')[0]) * 60
+  let seconds = parseInt(word.split(':')[1])
+  return minutes + seconds
+}
+
+function sendTimeStamp(comment: string, sendResponse: (response: any) => void): boolean {
+  let extracted = comment.match(TimeStampRegex)
+  if (extracted === null) {
+    return false
   }
-  return undefined;
+
+  let tsStr: string = extracted[0]
+
+  sendResponse({
+    interval: tsToSeconds(tsStr),
+    source: 'comments',
+    text: comment,
+  })
+
+  return true
 }
